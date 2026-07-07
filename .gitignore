@@ -1,0 +1,15 @@
+# Environment
+.env
+
+# Air
+tmp/
+
+# Build
+bin/
+dist/
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store
