@@ -1,15 +1,16 @@
 # Environment
-.env
+backend/.env
 
 # Air
-tmp/
+backend/tmp/
 
 # Build
-bin/
-dist/
+backend/bin/
+backend/dist/
 
 # IDE
-.vscode/
+backend/.vscode/
 
 # OS
 .DS_Store
+Thumbs.db
