@@ -9,7 +9,7 @@ import (
 
 type Claims struct {
 	Email  string `json:"email"`
-	UserId string `json:"user_id"`
+	UserID string `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
@@ -18,7 +18,7 @@ func GenerateJWT(userID, email string) (string, error) {
 
 	claims := &Claims{
 		Email:  email,
-		UserId: userID,
+		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

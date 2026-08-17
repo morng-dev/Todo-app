@@ -4,6 +4,7 @@ import (
 	"morng-dev/internal/core/domain/entities"
 	"morng-dev/internal/core/domain/ports/services"
 	"morng-dev/pkg/utils"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -64,7 +65,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	}
 
 	if err := utils.ValidateStruct(&req); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(entities.ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(entities.ErrorResponse{
 			Success: false,
 			Message: "ข้อมูลไม่ครบถ้วน",
 			Error:   err.Error(),
@@ -79,9 +80,18 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 			Error:   err.Error(),
 		})
 	}
+
+	c.Cookie(&fiber.Cookie{
+		Name:     "access_token",
+		Value:    user.Token,
+		MaxAge:   int((12 * time.Hour).Seconds()),
+		HTTPOnly: true,
+		SameSite: "Strict",
+	})
+
 	return c.Status(fiber.StatusOK).JSON(entities.ApiResponse{
 		Success: true,
-		Message: "เข้าสู่ระบบาสำเร็จ",
+		Message: "เข้าสู่ระบบสำเร็จ",
 		Data:    user,
 	})
 }

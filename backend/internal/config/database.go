@@ -27,6 +27,7 @@ func runmigrate(db *gorm.DB) {
 	err := db.AutoMigrate(
 		&models.User{},
 		&models.Todo{},
+		&models.Comment{},
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
