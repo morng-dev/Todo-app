@@ -24,6 +24,7 @@ func (s *TodoService) CreateTodo(ctx context.Context, userID uuid.UUID, req *ent
 		Title:       req.Title,
 		Description: req.Description,
 	}
+
 	todo, err := s.todoRepo.Create(ctx, userID, todo)
 	if err != nil {
 		return nil, err
