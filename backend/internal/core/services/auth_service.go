@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"morng-dev/internal/core/domain/entities"
 	"morng-dev/internal/core/domain/ports/repositories"
@@ -19,7 +21,7 @@ func NewAuthService(userRepo repositories.UserRepository) services.AuthService {
 
 func (s *authService) Register(ctx context.Context, req *entities.RegisterRequest) (*entities.User, error) {
 	if _, err := s.userRepo.GetByEmail(ctx, req.Email); err == nil {
-		return nil, errors.New("อีเมลนี้มีอยู่ในระบบแล้ว")
+		return nil, err
 	}
 
 	hashPassword, err := utils.HashPassword(req.Password)
@@ -55,8 +57,17 @@ func (s *authService) Login(ctx context.Context, req *entities.LoginRequest) (*e
 	if err != nil {
 		return nil, err
 	}
+
 	return &entities.LoginResponse{
 		Token: token,
-		User:  *user,
+		User:  user,
 	}, nil
+}
+
+func (s *authService) generateRefreshToken() (string, error) {
+	byte := make([]byte, 32)
+	if _, err := rand.Read(byte); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(byte), nil
 }

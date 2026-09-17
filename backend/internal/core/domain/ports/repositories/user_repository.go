@@ -13,4 +13,10 @@ type UserRepository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*entities.User, error)
 	GetByEmail(ctx context.Context, email string) (*entities.User, error)
 	GetPasswordHash(ctx context.Context, id uuid.UUID) (string, error)
+	UpdatePassword(ctx context.Context, id uuid.UUID, hashedPassword string) error
+	SetRefreshToken(ctx context.Context, id uuid.UUID, access_token string) error
+	GetByRefresh(ctx context.Context, access_token string) (*entities.User, error)
+	SetResetToken(ctx context.Context, email string, access_token string) error
+	GetByResetToken(ctx context.Context, token string) (*entities.User, error)
+	ClearResetToken(ctx context.Context, id uuid.UUID) error
 }

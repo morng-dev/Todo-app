@@ -2,9 +2,11 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"morng-dev/internal/adapters/persistence/models"
 	"morng-dev/internal/core/domain/entities"
 	"morng-dev/internal/core/domain/ports/repositories"
+	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -26,6 +28,9 @@ func (r *UserRepository) Create(ctx context.Context, user *entities.User, passwo
 	}
 
 	if err := r.db.WithContext(ctx).Create(userModel).Error; err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return errors.New("user already Exists!!")
+		}
 		return err
 	}
 	user.ID = userModel.ID
@@ -79,7 +84,42 @@ func (r *UserRepository) GetPasswordHash(ctx context.Context, id uuid.UUID) (str
 	}
 	return user.Password, nil
 }
-
+func (r *UserRepository) UpdatePassword(ctx context.Context, id uuid.UUID, hashedPassword string) error {
+	return r.db.WithContext(ctx).Model(&models.User{}).Where("id = ?", id).Update("password", hashedPassword).Error
+}
+func (r *UserRepository) SetRefreshToken(ctx context.Context, id uuid.UUID, access_token string) error {
+	return r.db.WithContext(ctx).Model(&models.User{}).Where("id = ?", id).Update("refresh_token", access_token).Error
+}
+func (r *UserRepository) GetByRefresh(ctx context.Context, access_token string) (*entities.User, error) {
+	var userModel models.User
+	if err := r.db.WithContext(ctx).Preload("Role").First(&userModel, "refresh_token = ?", access_token).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("refresh token ไม่ถูกต้อง")
+		}
+		return nil, err
+	}
+	return r.modelsToEntities(&userModel), nil
+}
+func (r *UserRepository) SetResetToken(ctx context.Context, email string, resetToken string) error {
+	expiry := time.Now().Add(24 * time.Hour)
+	return r.db.WithContext(ctx).Model(&models.User{}).Where("email = ?", email).Updates(map[string]interface{}{
+		"reset_token":        resetToken,
+		"reset_token_expiry": expiry,
+	}).Error
+}
+func (r *UserRepository) GetByResetToken(ctx context.Context, token string) (*entities.User, error) {
+	var userModel models.User
+	if err := r.db.WithContext(ctx).Preload("Role").Where("reset_token = ? AND reset_token_expiry > ?", token, time.Now()).First(&userModel).Error; err != nil {
+		return nil, err
+	}
+	return r.modelsToEntities(&userModel), nil
+}
+func (r *UserRepository) ClearResetToken(ctx context.Context, id uuid.UUID) error {
+	return r.db.WithContext(ctx).Model(&models.User{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"reset_token":        "",
+		"reset_token_expiry": nil,
+	}).Error
+}
 func (r *UserRepository) modelsToEntities(userModel *models.User) *entities.User {
 	user := &entities.User{
 		ID:        userModel.ID,
