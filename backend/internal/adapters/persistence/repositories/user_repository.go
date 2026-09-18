@@ -47,6 +47,11 @@ func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*entities.U
 	}
 	return r.modelsToEntities(&userModel), nil
 }
+func (r *UserRepository) GetEmailExist(ctx context.Context, email string) (bool, error) {
+	var exists bool
+	err := r.db.WithContext(ctx).Raw(`SELECT EXISTS(SELECT 1) FROM USERS WHERE email = ?`, email).Scan(&exists).Error
+	return exists, err
+}
 
 func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*entities.User, error) {
 	var userModel models.User

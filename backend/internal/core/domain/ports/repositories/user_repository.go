@@ -11,12 +11,13 @@ type UserRepository interface {
 	Create(ctx context.Context, user *entities.User, password string) error
 	Getall(ctx context.Context, page, limit int) ([]*entities.User, int, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*entities.User, error)
+	GetEmailExist(ctx context.Context, email string) (bool, error)
 	GetByEmail(ctx context.Context, email string) (*entities.User, error)
 	GetPasswordHash(ctx context.Context, id uuid.UUID) (string, error)
 	UpdatePassword(ctx context.Context, id uuid.UUID, hashedPassword string) error
-	SetRefreshToken(ctx context.Context, id uuid.UUID, access_token string) error
-	GetByRefresh(ctx context.Context, access_token string) (*entities.User, error)
-	SetResetToken(ctx context.Context, email string, access_token string) error
+	SetRefreshToken(ctx context.Context, id uuid.UUID, token string) error
+	GetByRefresh(ctx context.Context, token string) (*entities.User, error)
+	SetResetToken(ctx context.Context, email string, resetToken string) error
 	GetByResetToken(ctx context.Context, token string) (*entities.User, error)
 	ClearResetToken(ctx context.Context, id uuid.UUID) error
 }
