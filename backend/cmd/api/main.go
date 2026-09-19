@@ -5,6 +5,7 @@ import (
 	"morng-dev/internal/adapters/http/handlers"
 	"morng-dev/internal/adapters/http/middleware"
 	"morng-dev/internal/adapters/http/routes"
+	"morng-dev/internal/adapters/mail"
 	"morng-dev/internal/adapters/persistence/repositories"
 	"morng-dev/internal/config"
 	"morng-dev/internal/core/services"
@@ -18,13 +19,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
+	mailer := mail.NewSMTPMailer(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUsername, cfg.SMTPPassword, cfg.SMTPFrom, cfg.APPURL)
 	//db
 	db := config.SetupDatabase(cfg)
 	//repo
 	userRepo := repositories.NewUserRepository(db)
 	todoRepo := repositories.NewTodoRepository(db)
 	//service
-	authService := services.NewAuthService(userRepo)
+	authService := services.NewAuthService(userRepo, mailer)
 	userService := services.NewUserService(userRepo)
 	todoService := services.NewTodoRepository(todoRepo)
 	//middleware

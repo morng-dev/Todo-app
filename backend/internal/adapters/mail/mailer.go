@@ -29,7 +29,7 @@ func NewSMTPMailer(host string, port int, username, password, from, appURL strin
 }
 
 func (s *SmtpMailer) SendResetPassword(ctx context.Context, to, resetToken string) error {
-	resetURL := fmt.Sprintf("%s/reset-password?token=%s", s.AppURL, resetToken)
+	resetURL := fmt.Sprintf("%s/api/v1/auth/reset-password?token=%s", s.AppURL, resetToken)
 
 	msg := mail.NewMsg()
 	if err := msg.From(s.From); err != nil {

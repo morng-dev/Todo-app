@@ -133,7 +133,7 @@ func (s *authService) RefresToken(ctx context.Context, req *entities.RefreshToke
 func (s *authService) ResetPassword(ctx context.Context, req *entities.ResetPasswordRequest) error {
 	user, err := s.userRepo.GetByResetToken(ctx, req.Token)
 	if err != nil {
-		return err
+		return errors.New("invalid or expired reset token")
 	}
 	newHashPassword, err := utils.HashPassword(req.NewPassword)
 	if err != nil {

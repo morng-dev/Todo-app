@@ -54,6 +54,8 @@ func (r *Routes) SetupRoutes(app *fiber.App) {
 	auth := api.Group("/auth")
 	auth.Post("/register", r.AuthHandler.Register)
 	auth.Post("/login", r.AuthHandler.Login)
+	auth.Post("/forgotPassword", r.AuthHandler.ForgotPassword)
+	auth.Post("/reset-password", r.AuthHandler.ResetPassword)
 
 	user := api.Group("/user")
 	user.Get("/", r.UserHandler.GetUsers)

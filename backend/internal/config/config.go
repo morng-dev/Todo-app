@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -21,12 +22,23 @@ type Config struct {
 	DB_SSLMODE string
 
 	JWT_SECRET string
+
+	SMTPHost     string
+	SMTPPort     int
+	SMTPUsername string
+	SMTPPassword string
+	SMTPFrom     string
+	AppURL       string
 }
 
 func LoadConfig() (*Config, error) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Printf("Warning: .env file not found, relying on environment variables")
+	}
+	smtpPort, err := strconv.Atoi(os.Getenv("SMTP_PORT"))
+	if err != nil {
+		log.Printf("Warning: REDIS_DB found, relying on environment variables")
 	}
 	config := &Config{
 		APPENV:  os.Getenv("APPENV"),
@@ -41,6 +53,12 @@ func LoadConfig() (*Config, error) {
 		DB_SSLMODE: os.Getenv("DB_SSLMODE"),
 
 		JWT_SECRET: os.Getenv("JWT_SECRET"),
+
+		SMTPHost:     os.Getenv("SMTP_HOST"),
+		SMTPPort:     smtpPort,
+		SMTPUsername: os.Getenv("SMTP_USERNAME"),
+		SMTPPassword: os.Getenv("SMTP_PASSWORD"),
+		SMTPFrom:     os.Getenv("SMTP_FROM"),
 	}
 	if err := validateConfig(config); err != nil {
 		return nil, err

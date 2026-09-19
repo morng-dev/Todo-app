@@ -114,7 +114,7 @@ func (r *UserRepository) SetResetToken(ctx context.Context, email string, resetT
 }
 func (r *UserRepository) GetByResetToken(ctx context.Context, token string) (*entities.User, error) {
 	var userModel models.User
-	if err := r.db.WithContext(ctx).Preload("Role").Where("reset_token = ? AND reset_token_expiry > ?", token, time.Now()).First(&userModel).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("reset_token = ? AND reset_token_expiry > ?", token, time.Now()).First(&userModel).Error; err != nil {
 		return nil, err
 	}
 	return r.modelsToEntities(&userModel), nil
