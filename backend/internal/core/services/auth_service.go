@@ -23,8 +23,12 @@ func NewAuthService(userRepo repositories.UserRepository, mailer services.Mailer
 }
 
 func (s *authService) Register(ctx context.Context, req *entities.RegisterRequest) (*entities.User, error) {
-	if _, err := s.userRepo.GetByEmail(ctx, req.Email); err == nil {
+	exists, err := s.userRepo.GetEmailExist(ctx, req.Email)
+	if err != nil {
 		return nil, err
+	}
+	if exists {
+		return nil, errors.New("email already exists")
 	}
 
 	hashPassword, err := utils.HashPassword(req.Password)

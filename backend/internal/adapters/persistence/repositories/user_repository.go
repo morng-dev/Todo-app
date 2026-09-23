@@ -92,8 +92,8 @@ func (r *UserRepository) GetPasswordHash(ctx context.Context, id uuid.UUID) (str
 func (r *UserRepository) UpdatePassword(ctx context.Context, id uuid.UUID, hashedPassword string) error {
 	return r.db.WithContext(ctx).Model(&models.User{}).Where("id = ?", id).Update("password", hashedPassword).Error
 }
-func (r *UserRepository) SetRefreshToken(ctx context.Context, id uuid.UUID, access_token string) error {
-	return r.db.WithContext(ctx).Model(&models.User{}).Where("id = ?", id).Update("refresh_token", access_token).Error
+func (r *UserRepository) SetRefreshToken(ctx context.Context, id uuid.UUID, token string) error {
+	return r.db.WithContext(ctx).Model(&models.User{}).Where("id = ?", id).Update("refresh_token", token).Error
 }
 func (r *UserRepository) GetByRefresh(ctx context.Context, access_token string) (*entities.User, error) {
 	var userModel models.User
@@ -106,7 +106,7 @@ func (r *UserRepository) GetByRefresh(ctx context.Context, access_token string) 
 	return r.modelsToEntities(&userModel), nil
 }
 func (r *UserRepository) SetResetToken(ctx context.Context, email string, resetToken string) error {
-	expiry := time.Now().Add(24 * time.Hour)
+	expiry := time.Now().Add(15 * time.Minute)
 	return r.db.WithContext(ctx).Model(&models.User{}).Where("email = ?", email).Updates(map[string]interface{}{
 		"reset_token":        resetToken,
 		"reset_token_expiry": expiry,
