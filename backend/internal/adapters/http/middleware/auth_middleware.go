@@ -3,6 +3,7 @@ package middleware
 import (
 	"morng-dev/internal/core/domain/entities"
 	"morng-dev/pkg/utils"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -21,21 +22,25 @@ func NewAuthMiddleware(JWT_SECRET string) *AuthMiddleware {
 
 func (m *AuthMiddleware) Authrequire() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// authHeader := c.Get("Authorization")
+
 		access_token := c.Cookies("access_token")
-		// if authHeader == "" {
-		// 	return c.Status(fiber.StatusUnauthorized).JSON(entities.ApiResponse{
-		// 		Success: false,
-		// 		Message: "header Unauthorization",
-		// 	})
-		// }
-		// tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		// if tokenString == authHeader {
-		// 	return c.Status(fiber.StatusUnauthorized).JSON(entities.ApiResponse{
-		// 		Success: false,
-		// 		Message: "รูปแบบ token ไม่ถูกต้อง",
-		// 	})
-		// }
+		if access_token == "" {
+			authHeader := c.Get("Authorization")
+			if authHeader == "" {
+				return c.Status(fiber.StatusUnauthorized).JSON(entities.ApiResponse{
+					Success: false,
+					Message: "header Unauthorization",
+				})
+			}
+			tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+			if tokenString == authHeader {
+				return c.Status(fiber.StatusUnauthorized).JSON(entities.ApiResponse{
+					Success: false,
+					Message: "รูปแบบ token ไม่ถูกต้อง",
+				})
+			}
+		}
+
 		token, err := jwt.ParseWithClaims(access_token, &utils.Claims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(m.JWT_SECRET), nil
 		})

@@ -127,6 +127,10 @@ func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 		})
 	}
 	req.Token = token
+	if err := utils.ValidateStruct(&req); err != nil {
+		return err
+	}
+
 	if err := h.authService.ResetPassword(c.Context(), &req); err != nil {
 
 		return c.Status(fiber.StatusBadRequest).JSON(entities.ErrorResponse{

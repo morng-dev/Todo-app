@@ -74,7 +74,6 @@ func (s *authService) Login(ctx context.Context, req *entities.LoginRequest) (*e
 func (s *authService) Logout(ctx context.Context, userID uuid.UUID) error {
 	return s.userRepo.SetRefreshToken(ctx, userID, "")
 }
-
 func (s *authService) ChangePassword(ctx context.Context, userID uuid.UUID, req *entities.ChangePassword) error {
 	hashPassword, err := s.userRepo.GetPasswordHash(ctx, userID)
 	if err != nil {
